@@ -8,8 +8,8 @@ export default function Auth() {
     <>
       <Nav />
       <Routes>
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/signup" element={<SignUp />} />
+        <Route path="login" element={<Login />} />
+        <Route path="signup" element={<SignUp />} />
       </Routes>
     </>
   );
