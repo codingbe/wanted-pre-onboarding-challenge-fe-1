@@ -26,16 +26,18 @@ const Input = styled.input<{ check: any }>`
     font-size: 0.7rem;
   }
 `;
-const Submit = styled.button`
+const Submit = styled.button<{ disabled: boolean }>`
   all: unset;
   background-color: #706a6a;
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "" : "pointer")};
   width: 120px;
   height: 50px;
   text-align: center;
   color: white;
   font-weight: bold;
   border-radius: 12px;
+  transition: 0.4s;
+  opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
 `;
 const ErrMsg = styled.span`
   text-align: center;
@@ -48,7 +50,7 @@ export default function SignUp() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     getValues,
   } = useForm({ mode: "onChange" });
 
@@ -109,7 +111,7 @@ export default function SignUp() {
         />
         <ErrMsg>{errors.password2?.message as string}</ErrMsg>
       </FormColumn>
-      <Submit type="submit" disabled={true}>
+      <Submit type="submit" disabled={!isValid}>
         회원가입
       </Submit>
     </Form>
