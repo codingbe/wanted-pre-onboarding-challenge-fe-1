@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
+import Alert from "../Alert";
 
 const Form = styled.form`
   max-width: 450px;
@@ -53,67 +55,88 @@ export default function SignUp() {
     formState: { errors, isValid },
     getValues,
   } = useForm({ mode: "onChange" });
+  const URL = "http://localhost:8080";
+  const [visible, setVisible] = useState(false);
+  const [content, setContent] = useState("");
 
-  function onSubmit(data: any) {
-    console.log(errors);
+  async function onSubmit(data: { email: string; password: string }) {
+    try {
+      const { email, password } = data;
+      const { token, details } = await fetch(`${URL}/users/create`, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      }).then((res) => res.json());
+      if (token) localStorage.setItem("token", token);
+      else {
+        setContent(details);
+        setVisible(true);
+      }
+    } catch (e: any) {
+      setContent(e);
+      setVisible(true);
+    }
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormColumn>
-        <Input
-          {...register("email", {
-            required: "이메일을 입력해주세요!",
-            validate: {
-              check: (value) => {
-                const regex = new RegExp(/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/);
-                const isValid = regex.test(value);
-                if (!isValid) return "이메일을 정확히 입력해주세요";
-                if (value === "") return "이메일을 꼭 입력해주세요";
+    <>
+      {visible && <Alert content={content} setVisible={setVisible} />}
+      <Form onSubmit={handleSubmit(onSubmit as any)}>
+        <FormColumn>
+          <Input
+            {...register("email", {
+              required: "이메일을 입력해주세요!",
+              validate: {
+                check: (value) => {
+                  const regex = new RegExp(/^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/);
+                  const isValid = regex.test(value);
+                  if (!isValid) return "이메일을 정확히 입력해주세요";
+                  if (value === "") return "이메일을 꼭 입력해주세요";
+                },
               },
-            },
-          })}
-          placeholder="이메일을 입력해주세요!"
-          check={errors.email?.message}
-          type="email"
-        />
-        <ErrMsg>{errors.email?.message as string}</ErrMsg>
-      </FormColumn>
-      <FormColumn>
-        <Input
-          {...register("password", {
-            required: "비밀번호를 입력해주세요!",
-            pattern: {
-              value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-              message: "8자이상 / 영문 / 숫자 / 특수문자를 조합해주세요",
-            },
-          })}
-          placeholder="8자이상 / 영문 / 숫자 / 특수문자를 조합해주세요"
-          type="password"
-          check={errors.password?.message}
-        />
-        <ErrMsg>{errors.password?.message as string}</ErrMsg>
-      </FormColumn>
-      <FormColumn>
-        <Input
-          {...register("password2", {
-            required: "비밀번호를 다시 입력해주세요!",
-            validate: {
-              check: (value) => {
-                const { password } = getValues();
-                if (password !== value) return "비밀번호가 일치하지 않습니다!";
+            })}
+            placeholder="이메일을 입력해주세요!"
+            check={errors.email?.message}
+            type="email"
+          />
+          <ErrMsg>{errors.email?.message as string}</ErrMsg>
+        </FormColumn>
+        <FormColumn>
+          <Input
+            {...register("password", {
+              required: "비밀번호를 입력해주세요!",
+              pattern: {
+                value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+                message: "8자이상 / 영문 / 숫자 / 특수문자를 조합해주세요",
               },
-            },
-          })}
-          type="password"
-          placeholder="비밀번호를 다시 입력해주세요!"
-          check={errors.password2?.message}
-        />
-        <ErrMsg>{errors.password2?.message as string}</ErrMsg>
-      </FormColumn>
-      <Submit type="submit" disabled={!isValid}>
-        회원가입
-      </Submit>
-    </Form>
+            })}
+            placeholder="8자이상 / 영문 / 숫자 / 특수문자를 조합해주세요"
+            type="password"
+            check={errors.password?.message}
+          />
+          <ErrMsg>{errors.password?.message as string}</ErrMsg>
+        </FormColumn>
+        <FormColumn>
+          <Input
+            {...register("password2", {
+              required: "비밀번호를 다시 입력해주세요!",
+              validate: {
+                check: (value) => {
+                  const { password } = getValues();
+                  if (password !== value) return "비밀번호가 일치하지 않습니다!";
+                },
+              },
+            })}
+            type="password"
+            placeholder="비밀번호를 다시 입력해주세요!"
+            check={errors.password2?.message}
+          />
+          <ErrMsg>{errors.password2?.message as string}</ErrMsg>
+        </FormColumn>
+        <Submit type="submit" disabled={!isValid}>
+          회원가입
+        </Submit>
+      </Form>
+    </>
   );
 }
