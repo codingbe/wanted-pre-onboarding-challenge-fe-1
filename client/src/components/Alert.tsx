@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Background = styled.div`
@@ -40,13 +41,28 @@ const Button = styled.button`
   border-radius: 12px;
 `;
 
-export default function Alert({ content, setVisible }: { content: string; setVisible: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function Alert({
+  content,
+  setVisible,
+  path,
+}: {
+  content: string;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  path?: string;
+}) {
+  const navi = useNavigate();
+
+  function handleClick() {
+    setVisible(false);
+    path && navi(path);
+  }
+
   return (
     <>
-      <Background onClick={() => setVisible(false)}></Background>
+      <Background onClick={handleClick}></Background>
       <Container>
         <Content>{content}</Content>
-        <Button onClick={() => setVisible(false)}>확인</Button>
+        <Button onClick={handleClick}>확인</Button>
       </Container>
     </>
   );
