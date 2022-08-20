@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import Alert from "./Alert";
 
 const Wrap = styled.header`
   height: 50px;
@@ -35,20 +33,9 @@ const Rlink = styled(Link)<{ check: number }>`
 
 export default function Header() {
   const { pathname } = useLocation();
-  const [visible, setVisible] = useState(false);
-  const navi = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setVisible(true);
-      navi("/auth/login");
-    }
-  }, []);
 
   return (
     <>
-      {visible && <Alert content="로그인 후 이용해주세요" setVisible={setVisible} />}
       <Wrap>
         <Nav>
           <Ul>
