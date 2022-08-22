@@ -1,8 +1,8 @@
-import { faClipboard, faPen, faPenAlt, faTrashAlt, faX } from "@fortawesome/free-solid-svg-icons";
+import { faClipboard, faPen, faTrashAlt, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import styled from "styled-components";
-import { ToDoType } from "../../typeDefs";
+import { ToDoType, URL } from "../../typeDefs";
 
 const Ul = styled.ul`
   display: grid;
@@ -39,8 +39,22 @@ const Content = styled.p`
   padding: 12px;
 `;
 
-export default function ToDoBody({ toDos }: { toDos: ToDoType[] }) {
+export default function ToDoBody({
+  toDos,
+  setChange,
+}: {
+  toDos: ToDoType[];
+  setChange: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const [edit, setEdit] = useState(false);
+
+  async function deleteToDo(id: string) {
+    const token = localStorage.getItem("token");
+    await fetch(`${URL}/todos/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", authorization: `login ${token}` },
+    }).then((res) => res.ok && setChange((prev) => prev + 1));
+  }
 
   return (
     <Ul>
@@ -52,7 +66,10 @@ export default function ToDoBody({ toDos }: { toDos: ToDoType[] }) {
               <FontAwesomeIcon icon={edit ? faClipboard : faPen} onClick={() => setEdit(true)} />
               <FontAwesomeIcon
                 icon={edit ? faX : faTrashAlt}
-                onClick={() => setEdit(false)}
+                onClick={() => {
+                  !edit && deleteToDo(toDo.id);
+                  setEdit(false);
+                }}
                 style={{ marginLeft: 12 }}
               />
             </Icons>

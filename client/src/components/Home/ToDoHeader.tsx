@@ -64,6 +64,7 @@ export default function ToDoHeader({
       headers: { Authorization: `login ${token}`, "Content-Type": "application/json" },
     }).then((res) => res.json());
     data && setToDos((prev: ToDoType[]) => [data, ...prev]);
+    console.log(data);
   }
 
   return (

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { ToDoType } from "../../typeDefs";
+import { ToDoType, URL } from "../../typeDefs";
 import ToDoBody from "./ToDoBody";
 import ToDoHeader from "./ToDoHeader";
 
@@ -13,11 +13,24 @@ const Container = styled.div`
 
 export default function ToDo() {
   const [toDos, setToDos] = useState<ToDoType[]>([]);
+  const [change, setChange] = useState(0);
+
+  async function getToDos() {
+    const token = localStorage.getItem("token");
+    const { data } = await fetch(`${URL}/todos`, {
+      headers: { authorization: `login ${token}` },
+    }).then((res) => res.json());
+    setToDos(data);
+  }
+
+  useEffect(() => {
+    getToDos();
+  }, [change]);
 
   return (
     <Container>
       <ToDoHeader setToDos={setToDos} />
-      <ToDoBody toDos={toDos} />
+      <ToDoBody toDos={toDos} setChange={setChange} />
     </Container>
   );
 }
